@@ -9,7 +9,7 @@ import Foundation
 
 public class WSResponseSetting: Codable {
     
-    var success: Int?
+    var success: String?
     var message: String?
     var count: String?
     var nextPage: String?
@@ -20,12 +20,12 @@ public class WSResponseSetting: Codable {
     }
     
     var isSuccess: Bool {
-        return (success != nil && success! != 0)
+        return (success != nil && success! != "0")
     }
     
     var isValidToken: Bool {
         guard let success = success else { return false }
-        let tokenFailArray = [-200, -300, -500, -2, -3, -5]
+        let tokenFailArray = ["-200", "-300", "-500", "-2", "-3", "-5", "401"]
         return !tokenFailArray.contains(success)
     }
     
@@ -48,7 +48,7 @@ public class WSResponseSetting: Codable {
     
     required public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        success = try? values.decode(Int.self, forKey: .success)
+        success = try? values.decode(String.self, forKey: .success)
         message = try? values.decode(String.self, forKey: .message)
         count = try? values.decode(String.self, forKey: .count)
         nextPage = try? values.decode(String.self, forKey: .nextPage)

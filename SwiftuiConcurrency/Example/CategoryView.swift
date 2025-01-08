@@ -38,6 +38,12 @@ struct CategoryView: View {
     private func fetchCategoryList() async {
         let worker = LoginWorker()
         let (categoryList, success, message) = await worker.doFetchCategoryListAPI()
+        
+        debugPrint("CATEGORYLIST: \(categoryList ?? [])")
+        debugPrint("SUCCESS: \(success ?? false)")
+        debugPrint("MESSAGE: \(message ?? "")")
+        
+        
         if let categoryList, success == true  {
             categories = categoryList
         }
