@@ -52,7 +52,7 @@ extension NetworkService  {
             
             // Response code is not in the acceptable range
             if let response = response as? HTTPURLResponse, !response.statusCode.isSuccess  {
-                
+                debugPrint("STATUS CODE :: \(response.statusCode)")
                 switch response.statusCode {
                 case 400...499:
                     throw NetworkError.clientError(statusCode: response.statusCode)

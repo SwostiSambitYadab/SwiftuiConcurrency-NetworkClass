@@ -28,7 +28,7 @@ public class WSResponseSetting: Codable {
         let tokenFailArray = ["-200", "-300", "-500", "-2", "-3", "-5", "401"]
         return !tokenFailArray.contains(success)
     }
-    
+     
     private enum CodingKeys: String, CodingKey {
         case success = "success"
         case message = "message"

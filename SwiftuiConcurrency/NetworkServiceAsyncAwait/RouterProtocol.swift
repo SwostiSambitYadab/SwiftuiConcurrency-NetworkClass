@@ -36,7 +36,7 @@ public enum RequestType {
 public extension RouterProtocol {
     
     var baseUrlString: String {
-        return "http://www.sqwidapp.com/WS/"
+        return "" // Add your own URL here
     }
     
     var arrayParameters: [Any]? {

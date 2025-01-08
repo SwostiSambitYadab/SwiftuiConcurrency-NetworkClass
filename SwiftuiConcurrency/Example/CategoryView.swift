@@ -10,33 +10,39 @@ import SwiftUI
 struct CategoryView: View {
     
     @State private var categories: [CategoryListModel] = []
+    let worker = LoginWorker()
     
     var body: some View {
-        HStack(spacing: 10) {
-            ForEach(categories, id: \.categoryId) { category in
-                
-                VStack {
-                    Text(category.category ?? "")
-                        .font(.headline)
+        ScrollView(.horizontal) {
+            HStack(spacing: 10) {
+                ForEach(categories, id: \.categoryId) { category in
                     
-                    Text(category.categoryId ?? "")
-                        .font(.headline)
-                        .bold()
+                    VStack {
+                        Text(category.category ?? "")
+                            .font(.headline)
+                        
+                        Text(category.categoryId ?? "")
+                            .font(.headline)
+                            .bold()
+                    }
+                    .padding(24)
+                    .foregroundStyle(.green)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .shadow(radius: 2)
+                    )
                 }
-                .padding(24)
-                .foregroundStyle(.white)
-                .background(.blue)
-                .cornerRadius(8)
             }
         }
+        .scrollIndicators(.hidden)
         .task {
             await fetchCategoryList()
+            await tryToLogin()
         }
     }
     
     
     private func fetchCategoryList() async {
-        let worker = LoginWorker()
         let (categoryList, success, message) = await worker.doFetchCategoryListAPI()
         
         debugPrint("CATEGORYLIST: \(categoryList ?? [])")
@@ -48,6 +54,22 @@ struct CategoryView: View {
             categories = categoryList
         }
         debugPrint("Potential Error / success message :: \(message ?? "")")
+    }
+    
+    private func tryToLogin() async {
+        
+        let request = Login.Request(
+            email: "john@yopmail.com",
+            password: "John@123"
+        )
+        
+        
+        let (loginResponse, success, message) = await worker.callLoginAPI(request: request)
+        
+        debugPrint("LOGIN RESPONSE: ", loginResponse)
+        debugPrint("SUCCESS: \(success ?? false)")
+        debugPrint("MESSAGE: \(message ?? "")")
+        
     }
 }
 
