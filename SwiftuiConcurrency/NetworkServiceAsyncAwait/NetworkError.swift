@@ -25,6 +25,21 @@ public enum NetworkError: Error {
     
     /// - Other
     case other(statusCode: StatusCode?, error: Error?)
+    
+    
+    static func handleStatusCodeError(_ statusCode: StatusCode) throws {
+        
+        switch statusCode {
+        case 400...499:
+            throw NetworkError.clientError(statusCode: statusCode)
+            
+        case 500...599:
+            throw NetworkError.serverError(statusCode: statusCode)
+            
+        default:
+            throw NetworkError.other(statusCode: statusCode, error: nil)
+        }
+    }
 }
 
 extension StatusCode {

@@ -36,8 +36,9 @@ struct CategoryView: View {
         }
         .scrollIndicators(.hidden)
         .task {
-            await fetchCategoryList()
-            await tryToLogin()
+//            await fetchCategoryList()
+//            await tryToLogin()
+            await fetchEVDetails()
         }
     }
     
@@ -66,10 +67,23 @@ struct CategoryView: View {
         
         let (loginResponse, success, message) = await worker.callLoginAPI(request: request)
         
-        debugPrint("LOGIN RESPONSE: ", loginResponse)
+        debugPrint("LOGIN RESPONSE: \(String(describing: loginResponse))")
         debugPrint("SUCCESS: \(success ?? false)")
         debugPrint("MESSAGE: \(message ?? "")")
         
+    }
+    
+    private func fetchEVDetails() async {
+        let worker = EVWorker()
+        let request = EVModel.Request(
+            lat: 23.0225,
+            lng: 72.5714
+        )
+        
+        let (evResponse, success, message) = await worker.fetchChargeStations(request: request)
+        debugPrint("EVRESPONSE: ", evResponse)
+        debugPrint("SUCCESS: \(success ?? false)")
+        debugPrint("MESSAGE: \(message ?? "")")
     }
 }
 

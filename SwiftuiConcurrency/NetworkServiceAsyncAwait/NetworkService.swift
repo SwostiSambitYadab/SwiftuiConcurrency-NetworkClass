@@ -11,6 +11,7 @@ import Foundation
 public protocol NetworkProtocol {
     var session: URLSession { get }
     func dataRequest<Model: WSResponseData>(with request: RouterProtocol) async throws -> WSResponse<Model>
+    func generalDataRequest<Model: Codable>(with request: RouterProtocol) async throws -> Model
 }
 
 final class NetworkService: NetworkProtocol {
@@ -80,6 +81,54 @@ extension NetworkService  {
                 throw NetworkError.requestError(errorMessage: "Connection Time Out or Lost.\nPlease try again.")
             }
             
+            throw NetworkError.other(statusCode: nil, error: error)
+        }
+    }
+    
+    
+    func generalDataRequest<Model>(with request: any RouterProtocol) async throws -> Model where Model : Decodable, Model : Encodable {
+        
+        
+        // -- Checking for connection -- //
+        guard NetworkMonitor.shared.isReachable else {
+            throw NetworkError.requestError(errorMessage: "It seems you're not connected to Internet")
+        }
+        
+        print("ROUTER BASE", request.baseUrlString)
+        print("ROUTER PARAMETERS", request.parameters ?? [:])
+        print("ROUTER PATH", request.path)
+        print("ROUTER VERB", request.method)
+        
+        // -- Trying to create URLRequest -- //
+        guard let request = request.asURLRequest() else {
+            throw NetworkError.requestError(errorMessage: "Server is not responding! Please try after sometime.")
+        }
+        
+        do {
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            // handle status code errors
+            if let response = response as? HTTPURLResponse, !response.statusCode.isSuccess {
+                debugPrint("FAILED STATUS CODE : \(response.statusCode)")
+                try NetworkError.handleStatusCodeError(response.statusCode)
+            }
+            
+            // handle data
+            if let respString = String(data: data, encoding: .utf8) {
+                debugPrint("\nRESPONSE:\n")
+                print(respString)
+            }
+            let decoder = JSONDecoder()
+            let decodedValue = try decoder.decode(Model.self, from: data)
+            return decodedValue
+            
+        } catch {
+            let error = error as NSError
+            
+            if error._code == NSURLErrorTimedOut || error._code == NSURLErrorNetworkConnectionLost {
+                throw NetworkError.requestError(errorMessage: "Connection Time Out or Lost.\nPlease try again.")
+            }
             throw NetworkError.other(statusCode: nil, error: error)
         }
     }

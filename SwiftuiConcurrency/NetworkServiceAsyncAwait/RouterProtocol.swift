@@ -54,8 +54,10 @@ public extension RouterProtocol {
             return nil
         }
         
+        debugPrint("Whole url :: \(url)")
+        
         var request = URLRequest(
-            url: path.contains("http://") || path.contains("https://") ? URL(string: path)! : url.appending(path: path),
+            url: url,
             cachePolicy: .reloadIgnoringLocalCacheData,
             timeoutInterval: 30
         )
@@ -79,8 +81,11 @@ extension RouterProtocol {
         }
         
         return parameters.map { (key: String, value: Any?) -> URLQueryItem in
-            let valueString = String(describing: value)
-            return URLQueryItem(name: key, value: valueString)
+            if let value {
+                return URLQueryItem(name: key, value: "\(value)")
+            } else {
+                return URLQueryItem(name: key, value: nil)
+            }
         }
     }
         
